@@ -2,6 +2,7 @@ package main
 
 import (
 	"n0ctRnull/todo-api-go/database"
+	"n0ctRnull/todo-api-go/handlers"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
@@ -17,6 +18,7 @@ func main() {
 	app.Use(logger.New())
 
 	app.Get("/", testHandler)
+	app.Post("/register", handlers.RegisterUser)
 
 	app.Listen(":3000")
 }
