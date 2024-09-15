@@ -8,8 +8,8 @@ import (
 
 func FindUserByEmail(email string) (*models.User, error) {
 	user := models.User{}
-	query := "SELECT id, name, email FROM users WHERE email=$1"
-	err := database.Db.QueryRow(query, email).Scan(&user.Id, &user.Name, &user.Email)
+	query := "SELECT id, name, email,password FROM users WHERE email=$1"
+	err := database.Db.QueryRow(query, email).Scan(&user.Id, &user.Name, &user.Email, &user.Password)
 
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -19,7 +19,7 @@ func FindUserByEmail(email string) (*models.User, error) {
 		return nil, err
 	}
 
-	return &user, err
+	return &user, nil
 }
 
 func InsertUser(user models.User) error {

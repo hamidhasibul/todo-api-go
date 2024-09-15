@@ -19,6 +19,7 @@ func main() {
 
 	app.Get("/", testHandler)
 	app.Post("/register", handlers.RegisterUser)
+	app.Post("/login", handlers.LoginUser)
 
 	app.Listen(":3000")
 }
