@@ -17,6 +17,7 @@ func testHandler(ctx *fiber.Ctx) error {
 	id := claims["id"]
 	fmt.Println(id)
 	return ctx.SendString("Hello World")
+
 }
 
 func main() {
@@ -27,6 +28,8 @@ func main() {
 	app.Get("/", middlewares.VerifyJWT(), testHandler)
 	app.Post("/register", handlers.RegisterUser)
 	app.Post("/login", handlers.LoginUser)
+
+	app.Post("/posts", middlewares.VerifyJWT(), handlers.AddPost)
 
 	app.Listen(":3000")
 }

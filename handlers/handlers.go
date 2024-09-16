@@ -1,12 +1,14 @@
 package handlers
 
 import (
+	"fmt"
 	"n0ctRnull/todo-api-go/helpers"
 	"n0ctRnull/todo-api-go/models"
 	"n0ctRnull/todo-api-go/repository"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/golang-jwt/jwt/v5"
 )
 
 func RegisterUser(ctx *fiber.Ctx) error {
@@ -87,4 +89,26 @@ func LoginUser(ctx *fiber.Ctx) error {
 	ctx.Cookie(&cookie)
 
 	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{"success": true, "token": token})
+}
+
+func AddPost(ctx *fiber.Ctx) error {
+
+	newPost := models.Post{}
+
+	if err := ctx.BodyParser(&newPost); err != nil {
+		return ctx.Status(400).JSON(fiber.Map{"success": false, "message": "Bad request"})
+	}
+
+	user := ctx.Locals("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+	id := claims["id"]
+	userId := fmt.Sprintf("%.0f", id)
+
+	err := repository.InsertPost(&newPost, userId)
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"success": false, "message": "Something went wrong"})
+	}
+
+	return ctx.Status(fiber.StatusCreated).JSON(fiber.Map{"success": true, "message": "Post added"})
 }
