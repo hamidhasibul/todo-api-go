@@ -30,6 +30,7 @@ func main() {
 	app.Post("/login", handlers.LoginUser)
 
 	app.Post("/posts", middlewares.VerifyJWT(), handlers.AddPost)
+	app.Put("/posts/:postId", middlewares.VerifyJWT(), handlers.UpdatePost)
 
 	app.Listen(":3000")
 }
