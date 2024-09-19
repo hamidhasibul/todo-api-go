@@ -164,3 +164,50 @@ func UpdatePost(ctx *fiber.Ctx) error {
 
 	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{"success": true, "message": "Post updated"})
 }
+
+func DeletePost(ctx *fiber.Ctx) error {
+
+	user := ctx.Locals("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+	id := claims["id"]
+	userId, err := strconv.Atoi(fmt.Sprintf("%.0f", id))
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"success": false,
+			"message": "Something went wrong",
+		})
+	}
+
+	postId := ctx.Params("postId")
+
+	post, err := repository.FindPostById(postId)
+	if err != nil {
+		if err.Error() == "post not found" {
+			return ctx.Status(fiber.StatusNotFound).JSON(fiber.Map{
+				"success": false,
+				"message": "No such post found",
+			})
+		}
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"success": false,
+			"message": "Something went wrong",
+		})
+	}
+
+	if post.UserId != userId {
+		return ctx.Status(fiber.StatusForbidden).JSON(fiber.Map{
+			"success": false,
+			"message": "Forbidden",
+		})
+	}
+
+	if err = repository.DeletePost(postId); err != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"success": false,
+			"message": "Something went wrong",
+		})
+	}
+
+	return ctx.SendStatus(fiber.StatusNoContent)
+}

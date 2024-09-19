@@ -31,6 +31,7 @@ func main() {
 
 	app.Post("/posts", middlewares.VerifyJWT(), handlers.AddPost)
 	app.Put("/posts/:postId", middlewares.VerifyJWT(), handlers.UpdatePost)
+	app.Delete("/posts/:postId", middlewares.VerifyJWT(), handlers.DeletePost)
 
 	app.Listen(":3000")
 }

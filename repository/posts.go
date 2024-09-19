@@ -21,6 +21,14 @@ func UpdatePost(post *models.Post, postId string) error {
 	return err
 }
 
+func DeletePost(postId string) error {
+	query := "DELETE FROM posts WHERE id=$1"
+
+	_, err := database.Db.Exec(query, postId)
+
+	return err
+}
+
 func FindPostById(postId string) (*models.Post, error) {
 	post := models.Post{}
 	query := "SELECT * from posts WHERE id=$1"
