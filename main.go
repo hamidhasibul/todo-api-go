@@ -29,9 +29,11 @@ func main() {
 	app.Post("/register", handlers.RegisterUser)
 	app.Post("/login", handlers.LoginUser)
 
-	app.Post("/posts", middlewares.VerifyJWT(), handlers.AddPost)
-	app.Put("/posts/:postId", middlewares.VerifyJWT(), handlers.UpdatePost)
-	app.Delete("/posts/:postId", middlewares.VerifyJWT(), handlers.DeletePost)
+	app.Post("/todos", middlewares.VerifyJWT(), handlers.AddPost)
+	app.Get("/todos", middlewares.VerifyJWT(), handlers.GetPosts)
+
+	app.Put("/todos/:todoId", middlewares.VerifyJWT(), handlers.UpdatePost)
+	app.Delete("/todos/:todoId", middlewares.VerifyJWT(), handlers.DeletePost)
 
 	app.Listen(":3000")
 }

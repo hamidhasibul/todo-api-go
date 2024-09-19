@@ -132,9 +132,9 @@ func UpdatePost(ctx *fiber.Ctx) error {
 			"message": "Something went wrong",
 		})
 	}
-	postId := ctx.Params("postId")
+	todoId := ctx.Params("todoId")
 
-	post, err := repository.FindPostById(postId)
+	post, err := repository.FindPostById(todoId)
 	if err != nil {
 		if err.Error() == "post not found" {
 			return ctx.Status(fiber.StatusNotFound).JSON(fiber.Map{
@@ -155,7 +155,7 @@ func UpdatePost(ctx *fiber.Ctx) error {
 		})
 	}
 
-	if err = repository.UpdatePost(&updatedPost, postId); err != nil {
+	if err = repository.UpdatePost(&updatedPost, todoId); err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"success": false,
 			"message": "Something went wrong",
@@ -179,9 +179,9 @@ func DeletePost(ctx *fiber.Ctx) error {
 		})
 	}
 
-	postId := ctx.Params("postId")
+	todoId := ctx.Params("todoId")
 
-	post, err := repository.FindPostById(postId)
+	post, err := repository.FindPostById(todoId)
 	if err != nil {
 		if err.Error() == "post not found" {
 			return ctx.Status(fiber.StatusNotFound).JSON(fiber.Map{
@@ -202,7 +202,7 @@ func DeletePost(ctx *fiber.Ctx) error {
 		})
 	}
 
-	if err = repository.DeletePost(postId); err != nil {
+	if err = repository.DeletePost(todoId); err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"success": false,
 			"message": "Something went wrong",
@@ -210,4 +210,45 @@ func DeletePost(ctx *fiber.Ctx) error {
 	}
 
 	return ctx.SendStatus(fiber.StatusNoContent)
+}
+
+func GetPosts(ctx *fiber.Ctx) error {
+
+	page, err := strconv.Atoi(ctx.Query("page", "1"))
+	if err != nil || page < 1 {
+		page = 1
+	}
+
+	limit, err := strconv.Atoi(ctx.Query("limit", "10"))
+	if err != nil || limit < 1 {
+		limit = 10
+	}
+
+	user := ctx.Locals("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+	id := claims["id"]
+	userId, err := strconv.Atoi(fmt.Sprintf("%.0f", id))
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"success": false,
+			"message": "Something went wrong",
+		})
+	}
+
+	posts, total, err := repository.FetchPosts(userId, page, limit)
+	if err != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"success": false,
+			"message": "Something went wrong",
+		})
+	}
+
+	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
+		"success": true,
+		"data":    posts,
+		"page":    page,
+		"limit":   limit,
+		"total":   total,
+	})
 }
